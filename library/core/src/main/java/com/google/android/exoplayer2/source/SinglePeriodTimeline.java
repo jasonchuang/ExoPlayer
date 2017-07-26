@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.support.v4.util.SimpleArrayMap;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
@@ -32,6 +33,7 @@ public final class SinglePeriodTimeline extends Timeline {
   private final long windowDefaultStartPositionUs;
   private final boolean isSeekable;
   private final boolean isDynamic;
+  private final SimpleArrayMap<Long, Long> programDateTimeMap;
 
   /**
    * Creates a timeline of one period of known duration, and a static window starting at zero and
@@ -41,7 +43,14 @@ public final class SinglePeriodTimeline extends Timeline {
    * @param isSeekable Whether seeking is supported within the period.
    */
   public SinglePeriodTimeline(long durationUs, boolean isSeekable) {
-    this(durationUs, durationUs, 0, 0, isSeekable, false);
+    this(durationUs, durationUs, 0, 0, isSeekable, false, new SimpleArrayMap<Long, Long>());
+  }
+
+  public SinglePeriodTimeline(long periodDurationUs, long windowDurationUs,
+      long windowPositionInPeriodUs, long windowDefaultStartPositionUs, boolean isSeekable,
+      boolean isDynamic) {
+    this(periodDurationUs, windowDurationUs, windowPositionInPeriodUs, windowDefaultStartPositionUs,
+        isSeekable, isDynamic, new SimpleArrayMap<Long, Long>());
   }
 
   /**
@@ -56,16 +65,18 @@ public final class SinglePeriodTimeline extends Timeline {
    *     which to begin playback, in microseconds.
    * @param isSeekable Whether seeking is supported within the window.
    * @param isDynamic Whether the window may change when the timeline is updated.
+   * @param programDateTimeMap map for trace program date time tag
    */
   public SinglePeriodTimeline(long periodDurationUs, long windowDurationUs,
       long windowPositionInPeriodUs, long windowDefaultStartPositionUs, boolean isSeekable,
-      boolean isDynamic) {
+      boolean isDynamic, SimpleArrayMap<Long, Long> programDateTimeMap) {
     this.periodDurationUs = periodDurationUs;
     this.windowDurationUs = windowDurationUs;
     this.windowPositionInPeriodUs = windowPositionInPeriodUs;
     this.windowDefaultStartPositionUs = windowDefaultStartPositionUs;
     this.isSeekable = isSeekable;
     this.isDynamic = isDynamic;
+    this.programDateTimeMap = programDateTimeMap;
   }
 
   @Override
@@ -87,7 +98,7 @@ public final class SinglePeriodTimeline extends Timeline {
       }
     }
     return window.set(id, C.TIME_UNSET, C.TIME_UNSET, isSeekable, isDynamic,
-        windowDefaultStartPositionUs, windowDurationUs, 0, 0, windowPositionInPeriodUs);
+        windowDefaultStartPositionUs, windowDurationUs, 0, 0, windowPositionInPeriodUs, programDateTimeMap);
   }
 
   @Override

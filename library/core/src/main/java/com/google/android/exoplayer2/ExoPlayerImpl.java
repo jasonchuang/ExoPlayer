@@ -20,10 +20,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.SourceInfo;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -287,6 +289,34 @@ import java.util.concurrent.CopyOnWriteArraySet;
       timeline.getPeriod(playbackInfo.periodIndex, period);
       return period.getPositionInWindowMs() + C.usToMs(playbackInfo.positionUs);
     }
+  }
+
+  @Override
+  public long getCurrentLiveDateTime() {
+    if (timeline.isEmpty()) {
+      return C.TIME_UNSET;
+    }
+
+    return parseLiveDateTimeFromMap();
+  }
+
+  private long parseLiveDateTimeFromMap() {
+    SimpleArrayMap<Long, Long> programDateTimeMap = timeline.getWindow(getCurrentWindowIndex(), window).getProgramDateTimeMap();
+    // Empty EXT-X-PROGRAM-DATE-TIME
+    if (programDateTimeMap == null || programDateTimeMap.isEmpty()) {
+        return 0L;
+    }
+
+    long currentPosition = getCurrentPosition();
+    for (int index = programDateTimeMap.size() - 1; index > 0; index--) {
+        if (currentPosition >= programDateTimeMap.keyAt(index)) {
+            long offset = currentPosition - programDateTimeMap.keyAt(index);
+            return programDateTimeMap.valueAt(index) + offset;
+        }
+    }
+
+    // default return first EXT-X-PROGRAM-DATE-TIME
+    return programDateTimeMap.valueAt(0) + currentPosition;
   }
 
   @Override

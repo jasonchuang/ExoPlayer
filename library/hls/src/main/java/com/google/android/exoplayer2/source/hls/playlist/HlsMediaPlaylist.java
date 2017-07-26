@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.v4.util.SimpleArrayMap;
 import com.google.android.exoplayer2.C;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -92,13 +93,14 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final Segment initializationSegment;
   public final List<Segment> segments;
   public final List<String> dateRanges;
+  public final SimpleArrayMap<Long, Long> programDateTimeMap;
   public final long durationUs;
 
   public HlsMediaPlaylist(@PlaylistType int playlistType, String baseUri, long startOffsetUs,
       long startTimeUs, boolean hasDiscontinuitySequence, int discontinuitySequence,
       int mediaSequence, int version, long targetDurationUs, boolean hasEndTag,
       boolean hasProgramDateTime, Segment initializationSegment, List<Segment> segments,
-      List<String> dateRanges) {
+      List<String> dateRanges, SimpleArrayMap<Long, Long> programDateTimeMap) {
     super(baseUri);
     this.playlistType = playlistType;
     this.startTimeUs = startTimeUs;
@@ -120,6 +122,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.startOffsetUs = startOffsetUs == C.TIME_UNSET ? C.TIME_UNSET
         : startOffsetUs >= 0 ? startOffsetUs : durationUs + startOffsetUs;
     this.dateRanges = Collections.unmodifiableList(dateRanges);
+    this.programDateTimeMap = programDateTimeMap;
   }
 
   /**
@@ -158,7 +161,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public HlsMediaPlaylist copyWith(long startTimeUs, int discontinuitySequence) {
     return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, startTimeUs, true,
         discontinuitySequence, mediaSequence, version, targetDurationUs, hasEndTag,
-        hasProgramDateTime, initializationSegment, segments, dateRanges);
+        hasProgramDateTime, initializationSegment, segments, dateRanges, programDateTimeMap);
   }
 
   /**
@@ -173,7 +176,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
     return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, startTimeUs,
         hasDiscontinuitySequence, discontinuitySequence, mediaSequence, version, targetDurationUs,
-        true, hasProgramDateTime, initializationSegment, segments, dateRanges);
+        true, hasProgramDateTime, initializationSegment, segments, dateRanges, programDateTimeMap);
   }
 
 }

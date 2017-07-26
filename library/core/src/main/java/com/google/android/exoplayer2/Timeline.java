@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import android.support.v4.util.SimpleArrayMap;
+
 /**
  * A representation of media currently available for playback.
  * <p>
@@ -242,6 +244,8 @@ public abstract class Timeline {
      */
     public long windowStartTimeMs;
 
+    private SimpleArrayMap<Long, Long> programDateTimeMap;
+
     /**
      * Whether it's possible to seek within this window.
      */
@@ -281,12 +285,19 @@ public abstract class Timeline {
      */
     public long positionInFirstPeriodUs;
 
+    public Window set(Object id, long presentationStartTimeMs, long windowStartTimeMs,
+        boolean isSeekable, boolean isDynamic, long defaultPositionUs, long durationUs,
+        int firstPeriodIndex, int lastPeriodIndex, long positionInFirstPeriodUs) {
+        return set(id, presentationStartTimeMs, windowStartTimeMs, isSeekable, isDynamic, defaultPositionUs,
+            durationUs, firstPeriodIndex, lastPeriodIndex, positionInFirstPeriodUs, new SimpleArrayMap<Long, Long>());
+    }
+
     /**
      * Sets the data held by this window.
      */
     public Window set(Object id, long presentationStartTimeMs, long windowStartTimeMs,
         boolean isSeekable, boolean isDynamic, long defaultPositionUs, long durationUs,
-        int firstPeriodIndex, int lastPeriodIndex, long positionInFirstPeriodUs) {
+        int firstPeriodIndex, int lastPeriodIndex, long positionInFirstPeriodUs, SimpleArrayMap<Long, Long> programDateTimeMap) {
       this.id = id;
       this.presentationStartTimeMs = presentationStartTimeMs;
       this.windowStartTimeMs = windowStartTimeMs;
@@ -297,6 +308,7 @@ public abstract class Timeline {
       this.firstPeriodIndex = firstPeriodIndex;
       this.lastPeriodIndex = lastPeriodIndex;
       this.positionInFirstPeriodUs = positionInFirstPeriodUs;
+      this.programDateTimeMap = programDateTimeMap;
       return this;
     }
 
@@ -348,6 +360,10 @@ public abstract class Timeline {
      */
     public long getPositionInFirstPeriodUs() {
       return positionInFirstPeriodUs;
+    }
+
+    public SimpleArrayMap<Long, Long> getProgramDateTimeMap() {
+      return programDateTimeMap;
     }
 
   }

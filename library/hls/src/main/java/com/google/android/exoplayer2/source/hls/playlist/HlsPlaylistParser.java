@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.net.Uri;
+import android.support.v4.util.SimpleArrayMap;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -287,6 +288,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     Segment initializationSegment = null;
     List<Segment> segments = new ArrayList<>();
     List<String> dateRanges = new ArrayList<>();
+    SimpleArrayMap<Long, Long> programDateTimeMap = new SimpleArrayMap<>();
 
     long segmentDurationUs = 0;
     boolean hasDiscontinuitySequence = false;
@@ -360,9 +362,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.equals(TAG_DISCONTINUITY)) {
         relativeDiscontinuitySequence++;
       } else if (line.startsWith(TAG_PROGRAM_DATE_TIME)) {
+        long programDatetimeUs =
+            C.msToUs(Util.parseXsDateTime(line.substring(line.indexOf(':') + 1)));
+        programDateTimeMap.put(C.usToMs(segmentStartTimeUs), C.usToMs(programDatetimeUs));
+
         if (playlistStartTimeUs == 0) {
-          long programDatetimeUs =
-              C.msToUs(Util.parseXsDateTime(line.substring(line.indexOf(':') + 1)));
           playlistStartTimeUs = programDatetimeUs - segmentStartTimeUs;
         }
       } else if (line.startsWith(TAG_DATERANGE)) {
@@ -396,7 +400,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, playlistStartTimeUs,
         hasDiscontinuitySequence, playlistDiscontinuitySequence, mediaSequence, version,
         targetDurationUs, hasEndTag, playlistStartTimeUs != 0, initializationSegment, segments,
-        dateRanges);
+        dateRanges, programDateTimeMap);
   }
 
   private static int parseIntAttr(String line, Pattern pattern) throws ParserException {

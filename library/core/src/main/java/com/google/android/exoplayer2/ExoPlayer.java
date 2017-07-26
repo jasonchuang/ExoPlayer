@@ -470,6 +470,11 @@ public interface ExoPlayer {
   long getCurrentPosition();
 
   /**
+   * Return the window's current time in milliseconds since the epoch.
+   */
+  long getCurrentLiveDateTime();
+
+  /**
    * Returns an estimate of the position in the current window up to which data is buffered, in
    * milliseconds.
    */

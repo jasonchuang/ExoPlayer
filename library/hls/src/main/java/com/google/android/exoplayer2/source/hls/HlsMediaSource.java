@@ -121,13 +121,13 @@ public final class HlsMediaSource implements MediaSource,
             : segments.get(Math.max(0, segments.size() - 3)).relativeStartTimeUs;
       }
       timeline = new SinglePeriodTimeline(periodDurationUs, playlist.durationUs,
-          playlist.startTimeUs, windowDefaultStartPositionUs, true, !playlist.hasEndTag);
+          playlist.startTimeUs, windowDefaultStartPositionUs, true, !playlist.hasEndTag, playlist.programDateTimeMap);
     } else /* not live */ {
       if (windowDefaultStartPositionUs == C.TIME_UNSET) {
         windowDefaultStartPositionUs = 0;
       }
       timeline = new SinglePeriodTimeline(playlist.startTimeUs + playlist.durationUs,
-          playlist.durationUs, playlist.startTimeUs, windowDefaultStartPositionUs, true, false);
+          playlist.durationUs, playlist.startTimeUs, windowDefaultStartPositionUs, true, false, playlist.programDateTimeMap);
     }
     sourceListener.onSourceInfoRefreshed(timeline,
         new HlsManifest(playlistTracker.getMasterPlaylist(), playlist));

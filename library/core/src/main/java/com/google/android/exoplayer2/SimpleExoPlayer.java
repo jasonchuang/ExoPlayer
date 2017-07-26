@@ -612,6 +612,11 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public long getCurrentLiveDateTime() {
+    return player.getCurrentLiveDateTime();
+  }
+
+  @Override
   public int getCurrentWindowIndex() {
     return player.getCurrentWindowIndex();
   }
